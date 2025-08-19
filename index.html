@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Football Fixtures</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; }
+    .fixture-card { margin: 10px 0; padding: 10px; border: 1px solid #ccc; border-radius: 5px; }
+    .error { color: red; }
+  </style>
+</head>
+<body>
+  <h1>Premier League Fixtures</h1>
+  <div id="fixtures-container">Loading fixtures...</div>
+
+  <script>
+    async function fetchFixtures() {
+      const container = document.getElementById('fixtures-container');
+      try {
+        const response = await fetch('/api/news'); // still calling your serverless function
+        const data = await response.json();
+
+        if (!data.fixtures || data.fixtures.length === 0) {
+          container.innerHTML = '<p class="error">No Premier League fixtures available.</p>';
+          return;
+        }
+
+        container.innerHTML = data.fixtures.map(f => `
+          <div class="fixture-card">
+            <h3>${f.teams.home.name} vs ${f.teams.away.name}</h3>
+            <p>Date: ${new Date(f.fixture.date).toLocaleString()}</p>
+            <p>Status: ${f.fixture.status.long}</p>
+          </div>
+        `).join('');
+
+      } catch (err) {
+        console.error(err);
+        container.innerHTML = '<p class="error">Error loading fixtures.</p>';
+      }
+    }
+
+    fetchFixtures();
+  </script>
+</body>
+</html>
