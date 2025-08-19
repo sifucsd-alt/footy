@@ -1,6 +1,6 @@
 export default async function handler(req, res) {
-  const apiKey = process.env.NEWS_API_KEY; // secure, never exposed
-  const url = `https://newsapi.org/v2/top-headlines?country=gb&category=sports&q=Premier%20League&apiKey=${apiKey}`;
+  const apiKey = process.env.NEWS_API_KEY; // secure
+  const url = `https://newsapi.org/v2/everything?q=Premier%20League&language=en&sortBy=publishedAt&apiKey=${apiKey}`;
 
   try {
     const response = await fetch(url);
