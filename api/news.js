@@ -1,43 +1,21 @@
-// /api/news.js
-
 export default async function handler(req, res) {
-  const apiKey = process.env.FOOTBALL_API_KEY; // hidden in Vercel
-  const leagueId = 39; // Premier League
-  const season = 2025; 
-
-  const url = `https://v3.football.api-sports.io/fixtures?league=${leagueId}&season=${season}`;
+  const API_KEY = process.env.FOOTBALL_API_KEY; // hidden in environment
+  const LEAGUE_ID = 39; // Premier League
+  const NEXT_FIXTURES = 10;
 
   try {
-    const response = await fetch(url, {
-      method: 'GET',
-      headers: {
-        'X-RapidAPI-Key': apiKey,
-        'X-RapidAPI-Host': 'v3.football.api-sports.io'
-      }
+    const response = await fetch(`https://api.football-data.org/v4/competitions/${LEAGUE_ID}/matches?status=SCHEDULED&limit=${NEXT_FIXTURES}`, {
+      headers: { 'X-Auth-Token': API_KEY }
     });
 
     if (!response.ok) {
-      return res.status(response.status).json({ error: `API response status: ${response.status}` });
+      return res.status(response.status).json({ error: 'Error fetching fixtures' });
     }
 
     const data = await response.json();
-    const fixtures = data.response || [];
-
-    if (fixtures.length === 0) {
-      return res.status(200).json({ fixtures: [], message: 'No Premier League fixtures available.' });
-    }
-
-    const simplified = fixtures.map(f => ({
-      date: f.fixture.date,
-      home: f.teams.home.name,
-      away: f.teams.away.name,
-      status: f.fixture.status.short,
-      score: f.score.fulltime
-    }));
-
-    res.status(200).json({ fixtures: simplified });
+    res.status(200).json({ fixtures: data.matches });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: 'Error fetching fixtures.' });
+    res.status(500).json({ error: 'Internal server error' });
   }
 }
